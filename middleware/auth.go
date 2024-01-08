@@ -79,9 +79,9 @@ func resendToken(c *fiber.Ctx) error {
 
 	c.Next()
 	return c.Status(200).JSON(fiber.Map{
-		"status":  "warning",
-		"message": "Warning : Refresh token.",
-		"token":   service.GetToken("access_token:" + uid),
+		"status":       "warning",
+		"message":      "Warning : Refresh token.",
+		"Access_token": service.GetToken("access_token:" + uid),
 	})
 }
 

@@ -92,7 +92,7 @@ func (s authService) LoginService(loginReq repository.UserAuth) (*LoginResponse,
 
 	responseLogin := LoginResponse{
 		Status:        "success",
-		Access_toekn:  GetToken("access_token:" + udid),
+		Access_token:  GetToken("access_token:" + udid),
 		Refresh_token: GetToken("refresh_token:" + udid),
 	}
 	return &responseLogin, nil

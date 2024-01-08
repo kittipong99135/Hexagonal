@@ -20,7 +20,7 @@ type UserResponse struct {
 
 type LoginResponse struct {
 	Status        string
-	Access_toekn  string
+	Access_token  string
 	Refresh_token string
 }
 
