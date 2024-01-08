@@ -1,32 +1,12 @@
 package service
 
-import "hex/repository"
-
-type UserRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
-	Age      int    `json:"age"`
-	Phone    string `json:"phone"`
-	Rank     string `json:"rank"`
-}
-
-type UserResponse struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
-	Phone string `json:"phone"`
-	Rank  string `json:"rank"`
-}
-
-type LoginResponse struct {
-	Status        string
-	Access_token  string
-	Refresh_token string
-}
+import "hex/models"
 
 type AuthService interface {
-	RegisterService(UserRequest) (*UserResponse, error)
-	LoginService(repository.UserAuth) (*LoginResponse, error)
-	UserListAll(string) ([]UserResponse, error)
-	UserReadById(string) (*UserResponse, error)
+	RegisterService(models.UserRequest) (*models.UserResponse, error)
+	LoginService(models.UserAuth) (*models.LoginResponse, error)
+	UserListAll(string) ([]models.UserResponse, error)
+	UserReadById(string) (*models.UserResponse, error)
+	UserRemove(string)
+	ActiveStatus(string) (*models.UserResponse, error)
 }

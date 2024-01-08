@@ -33,4 +33,7 @@ func Routes(app *fiber.App, db *gorm.DB) {
 	user.Get("/params", authHandler.UserParams)
 	user.Get("/list", authHandler.ListAllUser)
 	user.Get("/read/:id", authHandler.ReadUserById)
+	user.Put("/update/:id", authHandler.ActiveStatus)
+	user.Delete("/remove/:id", authHandler.RemoveUser)
+
 }

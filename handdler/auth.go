@@ -2,7 +2,7 @@ package handdler
 
 import (
 	"fmt"
-	"hex/repository"
+	"hex/models"
 	"hex/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,7 +19,7 @@ func NewAuthHandler(authSrv service.AuthService) authHandler {
 
 func (h authHandler) Register(c *fiber.Ctx) error {
 
-	regisReq := service.UserRequest{}
+	regisReq := models.UserRequest{}
 	err := c.BodyParser(&regisReq)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -42,17 +42,17 @@ func (h authHandler) Register(c *fiber.Ctx) error {
 
 func (h authHandler) Login(c *fiber.Ctx) error {
 
-	loginReq := repository.UserAuth{}
+	loginReq := models.UserAuth{}
 	err := c.BodyParser(&loginReq)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
-			"status": "Invalid",
+			"status": "error",
 		})
 	}
 	resultReq, err := h.authSrv.LoginService(loginReq)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
-			"status": "Invalid",
+			"status": "error",
 		})
 	}
 
@@ -87,7 +87,7 @@ func (h authHandler) UserParams(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(fiber.Map{
-		"status":  "Success",
+		"status":  "success",
 		"message": "Success : Read user success.",
 		"params":  params,
 	})
@@ -100,7 +100,7 @@ func (h authHandler) ListAllUser(c *fiber.Ctx) error {
 	users, _ := h.authSrv.UserListAll(uid)
 
 	return c.Status(200).JSON(fiber.Map{
-		"status":  "Success",
+		"status":  "success",
 		"message": "Success : List user success.",
 		"params":  users,
 	})
@@ -117,8 +117,38 @@ func (h authHandler) ReadUserById(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(200).JSON(fiber.Map{
-		"status":  "Success",
+		"status":  "success",
 		"message": "Success : Read user success.",
 		"user":    user,
 	})
+}
+
+func (h authHandler) RemoveUser(c *fiber.Ctx) error {
+	uid := c.Params("id")
+	h.authSrv.UserRemove(uid)
+
+	return c.Status(200).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Success : Delete success.",
+	})
+}
+
+func (h authHandler) ActiveStatus(c *fiber.Ctx) error {
+	uid := c.Params("id")
+	result, err := h.authSrv.ActiveStatus(uid)
+
+	if err != nil {
+		return c.Status(200).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Error : Update user invalids.",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Success : Update status success.",
+		"result":  result,
+	})
+
 }

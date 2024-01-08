@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"hex/database"
+	"hex/models"
 	"hex/repository"
 	"os"
 	"strconv"
@@ -30,7 +31,7 @@ func NewAuthService(authRepo repository.AuthRepository) AuthService {
 	return authService{authRepo: authRepo}
 }
 
-func (s authService) RegisterService(data UserRequest) (*UserResponse, error) {
+func (s authService) RegisterService(data models.UserRequest) (*models.UserResponse, error) {
 
 	resultList, _ := s.authRepo.UserExist(data.Email)
 	if resultList != 0 {
@@ -42,7 +43,7 @@ func (s authService) RegisterService(data UserRequest) (*UserResponse, error) {
 		return nil, errors.New("Invalid hash passward")
 	}
 
-	user := repository.User{
+	user := models.User{
 		Email:    data.Email,
 		Password: string(hash),
 		Name:     data.Name,
@@ -55,16 +56,18 @@ func (s authService) RegisterService(data UserRequest) (*UserResponse, error) {
 
 	s.authRepo.Create(user)
 
-	response := UserResponse{
-		Email: data.Email,
-		Name:  data.Name,
-		Phone: data.Phone,
-		Rank:  data.Rank,
+	response := models.UserResponse{
+		Email:  data.Email,
+		Name:   data.Name,
+		Phone:  data.Phone,
+		Rank:   data.Rank,
+		Role:   "user",
+		Status: "nactive",
 	}
 	return &response, nil
 }
 
-func (s authService) LoginService(loginReq repository.UserAuth) (*LoginResponse, error) {
+func (s authService) LoginService(loginReq models.UserAuth) (*models.LoginResponse, error) {
 
 	userResult, numRows, _ := s.authRepo.Authentication(loginReq)
 	if numRows == 0 {
@@ -90,7 +93,7 @@ func (s authService) LoginService(loginReq repository.UserAuth) (*LoginResponse,
 	}
 	SetRefreshToken("refresh_token:"+udid, rfh_token)
 
-	responseLogin := LoginResponse{
+	responseLogin := models.LoginResponse{
 		Status:        "success",
 		Access_token:  GetToken("access_token:" + udid),
 		Refresh_token: GetToken("refresh_token:" + udid),
@@ -98,18 +101,21 @@ func (s authService) LoginService(loginReq repository.UserAuth) (*LoginResponse,
 	return &responseLogin, nil
 }
 
-func (s authService) UserListAll(uid string) ([]UserResponse, error) {
+func (s authService) UserListAll(uid string) ([]models.UserResponse, error) {
 	users, err := s.authRepo.UserList(uid)
 	if err != nil {
 		return nil, errors.New("Expexted users")
 	}
-	userResponses := []UserResponse{}
+	userResponses := []models.UserResponse{}
 	for _, user := range users {
-		userResponse := UserResponse{
-			Email: user.Email,
-			Name:  user.Name,
-			Phone: user.Phone,
-			Rank:  user.Rank,
+		userResponse := models.UserResponse{
+			ID:     strconv.Itoa(int(user.ID)),
+			Email:  user.Email,
+			Name:   user.Name,
+			Phone:  user.Phone,
+			Rank:   user.Rank,
+			Status: user.Status,
+			Role:   user.Role,
 		}
 		userResponses = append(userResponses, userResponse)
 	}
@@ -117,25 +123,52 @@ func (s authService) UserListAll(uid string) ([]UserResponse, error) {
 	return userResponses, nil
 }
 
-func (s authService) UserReadById(uid string) (*UserResponse, error) {
+func (s authService) UserReadById(uid string) (*models.UserResponse, error) {
 	user, err := s.authRepo.UserRead(uid)
 	if err != nil {
 		return nil, errors.New("Expexted users")
 	}
 
-	userResponse := UserResponse{
-		Email: user.Email,
-		Name:  user.Name,
-		Phone: user.Phone,
-		Rank:  user.Rank,
+	userResponse := models.UserResponse{
+		Email:  user.Email,
+		Name:   user.Name,
+		Phone:  user.Phone,
+		Rank:   user.Rank,
+		Status: user.Status,
+		Role:   user.Role,
 	}
 
 	return &userResponse, nil
 }
 
+func (s authService) UserRemove(uid string) {
+	s.authRepo.UserRemove(uid)
+}
+
+func (s authService) ActiveStatus(uid string) (*models.UserResponse, error) {
+	result, rows, err := s.authRepo.UserStatus(uid)
+	if err != nil {
+		return nil, errors.New("Update status invalids.")
+	}
+	if rows == 0 {
+		return nil, errors.New("User uid invalids.")
+	}
+
+	resultResponse := models.UserResponse{
+		ID:     strconv.Itoa(int(result.ID)),
+		Email:  result.Email,
+		Name:   result.Name,
+		Phone:  result.Phone,
+		Rank:   result.Rank,
+		Status: result.Status,
+		Role:   result.Role,
+	}
+	return &resultResponse, nil
+}
+
 // Helping Method
 
-func CreateToken(userResult *repository.User, env string) (string, error) {
+func CreateToken(userResult *models.User, env string) (string, error) {
 	cliams := jwt.MapClaims{
 		"uid":    userResult.ID,
 		"name":   userResult.Name,

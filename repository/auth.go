@@ -1,30 +1,17 @@
 package repository
 
 import (
-	"gorm.io/gorm"
+	"hex/models"
 )
 
-type User struct {
-	gorm.Model
-	Email    string `db:"email"`
-	Password string `db:"email"`
-	Name     string `db:"name"`
-	Age      int    `db:"age"`
-	Phone    string `db:"phone"`
-	Rank     string `db:"rank"`
-	Role     string `db:"role"`
-	Status   string `db:"status"`
-}
-
-type UserAuth struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
+var User models.User
 
 type AuthRepository interface {
-	Create(User) (*User, error)
-	Authentication(UserAuth) (*User, int, error)
+	Create(models.User) (*models.User, error)
+	Authentication(models.UserAuth) (*models.User, int, error)
 	UserExist(string) (int, error)
-	UserList(string) ([]User, error)
-	UserRead(string) (*User, error)
+	UserList(string) ([]models.User, error)
+	UserRead(string) (*models.User, error)
+	UserRemove(string)
+	UserStatus(string) (*models.User, int, error)
 }

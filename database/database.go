@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"hex/repository"
+	"hex/models"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
@@ -25,7 +25,7 @@ func DB_Init() *gorm.DB {
 	fmt.Println("Success : Success to connect database.")
 
 	// Migrate the schema
-	db.AutoMigrate(&repository.User{})
+	db.AutoMigrate(&models.User{})
 
 	return db
 }

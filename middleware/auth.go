@@ -11,6 +11,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type ClaimsRefreshToken struct {
+	Uid    string
+	Name   string
+	Email  string
+	Role   string
+	Status string
+	Rank   string
+}
+
 func RequestAuth() func(*fiber.Ctx) error {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(os.Getenv("JWT_SECRET"))},
@@ -29,15 +38,6 @@ func RefreshAuth() func(*fiber.Ctx) error {
 func errNext(c *fiber.Ctx, err error) error {
 	c.Next()
 	return nil
-}
-
-type ClaimsRefreshToken struct {
-	Uid    string
-	Name   string
-	Email  string
-	Role   string
-	Status string
-	Rank   string
 }
 
 func resendToken(c *fiber.Ctx) error {
