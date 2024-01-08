@@ -56,9 +56,7 @@ func (h authHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		"user": resultReq,
-	})
+	return c.Status(200).JSON(resultReq)
 }
 
 func (h authHandler) UserParams(c *fiber.Ctx) error {
